@@ -89,11 +89,24 @@ public class IssueDrugAccountListFragmentController {
 
         return SimpleObject.fromCollection(listIssue, uiUtils, "id", "name", "createdOn");
     }
+    public Integer getReceiptDrugBatchCount(
+            @RequestParam(value = "drugId", required = false) Integer drugId,
+            @RequestParam(value = "name", required = false) String name,
+            UiUtils ui) {
+        if (!name.contains(":")){
+            return 0;
+        }
+        String[] formulations = name.split(":", 2);
+        InventoryService service = Context.getService(InventoryService.class);
+        InventoryDrugFormulation formulation = service.getDrugFormulation(formulations[0], formulations[1]);
+        List<SimpleObject> list = listReceiptDrugs(drugId, formulation.getId(), ui);
+        return list.size();
+    }
 
 
-    public List<SimpleObject> listReceiptDrug(
-            @RequestParam(value = "drugId", required = false) Integer drugId, UiUtils uiUtils,
-            @RequestParam(value = "formulationId", required = false) Integer formulationId) {
+    public List<SimpleObject> listReceiptDrugs(Integer drugId,
+                                               Integer formulationId,
+                                               UiUtils ui){
 
         List<InventoryStoreDrugTransactionDetail> listReceiptDrugReturn = new ArrayList<InventoryStoreDrugTransactionDetail>();
         InventoryService inventoryService = Context.getService(InventoryService.class);
@@ -180,10 +193,16 @@ public class IssueDrugAccountListFragmentController {
 
         }
 
-        return SimpleObject.fromCollection(listReceiptDrugReturn, uiUtils, "id", "drug.id", "formulation.id", "formulation.name", "formulation.dozage", "drug.name", "drug.category.id", "drug.category.name", "dateExpiry", "dateManufacture",
+        return SimpleObject.fromCollection(listReceiptDrugReturn, ui, "id", "drug.id", "formulation.id", "formulation.name", "formulation.dozage", "drug.name", "drug.category.id", "drug.category.name", "dateExpiry", "dateManufacture",
                 "companyName", "companyNameShort", "batchNo", "currentQuantity", "costToPatient");
     }
 
+    public List<SimpleObject> listReceiptDrug(
+            @RequestParam(value = "drugId", required = false) Integer drugId, UiUtils uiUtils,
+            @RequestParam(value = "formulationId", required = false) Integer formulationId) {
+
+        return listReceiptDrugs(drugId, formulationId, uiUtils);
+    }
     public InventoryStoreDrugAccount postAccountName(String account) {
         InventoryService inventoryService = Context.getService(InventoryService.class);
         List<Role> role = new ArrayList<Role>(Context.getAuthenticatedUser().getAllRoles());
