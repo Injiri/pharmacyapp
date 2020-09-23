@@ -257,6 +257,7 @@
 				<th>ORDER#</th>
 				<th>DATE</th>
 				<th>SENT FROM</th>
+				<th>SEND BY</th>
 				<th>ACTION</th>
 			</tr>
 		</thead>
@@ -277,6 +278,9 @@
 								N/A
 							<%}%>
 						</td>
+            <td>
+                ${order.creator}
+            </td>
 						<td align="center">
 							<a class="button task" href="drugOrder.page?patientId=${patientId}&encounterId=${order.encounter.encounterId}&patientType=${patientType}&date=${date}">
 								<i class="icon-signout"></i>
